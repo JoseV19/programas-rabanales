@@ -1,0 +1,14 @@
+# Dependencias
+node_modules/
+pnpm-lock.yaml
+
+# Archivos de Next.js
+.next/
+out/
+
+# Variables de entorno (¡Contraseñas!)
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
