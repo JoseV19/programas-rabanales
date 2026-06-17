@@ -127,6 +127,32 @@ export default function Dashboard() {
     }
   };
 
+  // --- LÓGICA DE EXPORTACIÓN A WORD ---
+  const handleDescargarWord = async (programaData: any[], fechaDoc: string) => {
+    try {
+      const res = await fetch('/api/exportar/word', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ programa: programaData, fecha: fechaDoc })
+      });
+
+      if (!res.ok) throw new Error("Error al generar el Word");
+
+      const blob = await res.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `Programa_${fechaDoc}.docx`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error(error);
+      alert("Hubo un error al descargar el archivo Word. Revisa que tu plantilla exista en la carpeta public.");
+    }
+  };
+
   return (
     <div className="min-h-screen bg-[#0a0a0a] text-zinc-100 p-10 font-sans max-w-5xl mx-auto">
       
@@ -176,6 +202,12 @@ export default function Dashboard() {
                   className="bg-zinc-800 text-zinc-300 border border-zinc-700 px-6 py-3 rounded-lg font-bold hover:bg-zinc-700 transition-all flex items-center gap-2"
                 >
                   🔄 RE-ALEATORIZAR
+                </button>
+                <button 
+                  onClick={() => handleDescargarWord(programa, fecha)} 
+                  className="bg-blue-600 text-white px-6 py-3 rounded-lg font-bold hover:bg-blue-500 transition-all flex items-center gap-2"
+                >
+                  📄 WORD
                 </button>
                 <button 
                   onClick={handleGuardar} disabled={guardando}
@@ -308,9 +340,17 @@ export default function Dashboard() {
               <div className="text-center py-20 text-emerald-500 animate-pulse font-bold tracking-widest uppercase">Cargando programa...</div>
             ) : fechaSeleccionadaHistorial && programaHistorial.length > 0 ? (
               <div className="grid gap-3 animate-in fade-in duration-300">
-                <h2 className="text-xl font-light mb-4 border-b border-zinc-800 pb-2">
-                  Programa de la Semana: <span className="font-bold text-emerald-500">{fechaSeleccionadaHistorial}</span>
-                </h2>
+                <div className="flex justify-between items-center mb-4 border-b border-zinc-800 pb-2">
+                  <h2 className="text-xl font-light">
+                    Programa de la Semana: <span className="font-bold text-emerald-500">{fechaSeleccionadaHistorial}</span>
+                  </h2>
+                  <button 
+                    onClick={() => handleDescargarWord(programaHistorial, fechaSeleccionadaHistorial)} 
+                    className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-blue-500 transition-all flex items-center gap-2"
+                  >
+                    📄 EXPORTAR WORD
+                  </button>
+                </div>
                 {programaHistorial.map((p: any, i) => (
                   <div key={i} className="p-4 bg-black/40 border border-zinc-800/50 rounded-lg flex flex-col gap-1 shadow-inner">
                      <p className="text-[10px] text-zinc-500 uppercase tracking-widest font-bold">{p.seccion} • {p.tipo_asignacion}</p>
